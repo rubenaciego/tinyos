@@ -1,12 +1,12 @@
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c)
-HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c include/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h include/*.h)
 # Nice syntax for file extension replacement
 OBJ = ${C_SOURCES:.c=.o cpu/interrupt.o}
 
 CC = i386-elf-gcc
 GDB = i386-elf-gdb
 
-CFLAGS = -g
+CFLAGS = -g -Iinclude -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartfiles -nodefaultlibs
 
 # First rule is run by default
 build/os-image.bin: boot/bootsect.bin build/kernel.bin
@@ -42,4 +42,4 @@ debug: build/os-image.bin debug/kernel.elf
 
 clean:
 	rm -rf *.bin *.dis *.o os-image.bin *.elf
-	rm -rf kernel/*.o cpu/*.o boot/*.bin drivers/*.o boot/*.o build/* debug/*
+	rm -rf kernel/*.o cpu/*.o boot/*.bin drivers/*.o boot/*.o build/* debug/* libc/*.o

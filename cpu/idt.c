@@ -1,5 +1,5 @@
-#include "idt.h"
-#include "../kernel/utils.h"
+#include <types.h>
+#include <cpu/idt.h>
 
 void set_idt_gate(int n, u32 handler)
 {
