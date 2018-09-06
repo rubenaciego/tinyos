@@ -1,6 +1,6 @@
 #include <memory.h>
 
-void memcp(byte* source, byte* dest, int nbytes)
+void memcpy(byte* source, byte* dest, int nbytes)
 {
     for (int i = 0; i < nbytes; i++)
         *(dest + i) = *(source + i);
@@ -11,25 +11,19 @@ void memset(byte* dest, byte val, int len)
     for (; len != 0; len--) *dest++ = val;
 }
 
-/* This should be computed at link time, but a hardcoded
- * value is fine for now. Remember that our kernel starts
- * at 0x1000 as defined on the Makefile */
-u32 free_mem_addr = 0x10000;
-/* Implementation is just a pointer to some free memory which
- * keeps growing */
-
-void* kmalloc(u32 size, int align, u32* phys_addr)
+void meminit()
 {
-    /* Pages are aligned to 4K, or 0x1000 */
-    if (align == 1 && (free_mem_addr & 0xFFFFF000))
-    {
-        free_mem_addr &= 0xFFFFF000;
-        free_mem_addr += 0x1000;
-    }
-    /* Save also the physical address */
-    if (phys_addr) *phys_addr = free_mem_addr;
+    struct mem_data* start = (struct mem_data*)MEM_START;
+    start->prev_chunck = NULL;
+    start->next_chunck = NULL;
+    start->chunck_size = 0;
+    start->next_chunck_free = 1;
+}
 
-    u32 ret = free_mem_addr;
-    free_mem_addr += size; /* Remember to increment the pointer */
-    return (void*)ret;
+u32 current_mem = 0x10000;
+
+void* kmalloc(u32 size)
+{
+    current_mem += size;
+    return (void*)(current_mem - size);
 }
